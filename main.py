@@ -1,6 +1,4 @@
-# Win condition implementation.
-    # Just do the simple n^2 check foreach of the possible match possibilities.
-
+import math
 # Powerup implementation.
     # Powerups have a grid position and an activation pattern
     # Individual types of powerups are subclasses of a baseclass Powerup that has members: grid position and activation pattern. Each powerup has its own pattern. The patterns are: "/", "\", "|", and "-"
@@ -25,17 +23,21 @@ PINK = "\x1b[38;5;205m"
 CYAN = "\x1b[36m"
 END = "\033[0m"  # Reset color to default
 
-# Create empty board.
+# Create empty grid.
 
 pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
 
 
-def win_check():
+def win_check(grid):
     #TODO Horizontal Check
+    for i in range(n):
+        pieces_to_check = grid[i]
+        print(pieces_to_check)
+
+    
     #TODO Vertical Check
     #TODO Diagonal Check Downward
     #Todo Diagonal Check Upward
-    pass
 
 while True:
     # Num of rows/cols.
@@ -46,6 +48,11 @@ while True:
     if 3 <= n <= 53:
         print()
         break
+
+def pieces_to_place_per_player_turn():
+    return round(math.log(n**2,3))
+
+pieces_per_turn = pieces_to_place_per_player_turn()
 
 # Nested loop comprehension to create the 2D matrix for the grid.
 canonical_grid_state = [[pieces[0] for _ in range(n)] for _ in range(n)]
@@ -84,10 +91,9 @@ def alternate_turns():
     else:
         return pieces[1]  # Return the piece for the new turn
 
-# TODO Modify Board State
+# TODO Modify grid State
 def modify_grid(alpha_index, numeral_index, grid, piece):
-    print(numeral_index)
-    print(alpha_index)
+    # Add overlap checks
     grid[numeral_index][alphabet.index(alpha_index) - 1] = piece
 
 
@@ -95,8 +101,8 @@ while True:
     
     while True:
         # ANSI code to clear the screen.
-        print('\033[H\033[J')
-        scroll_screen()
+        #print('\033[H\033[J')
+        #scroll_screen()
         display_grid(canonical_grid_state)
 
         #TODO Implement bounds checking.
@@ -106,14 +112,12 @@ while True:
         location = location.split()
 
         l_len = len(location)
-        print (l_len)
 
         if l_len < 2:
             continue
         elif l_len > 2:
             continue
 
-        print("here")
         alpha_val = location[0]
         numeral_val = location[1]
 
@@ -126,15 +130,9 @@ while True:
         except:
             continue
 
-        print("why not work")
 
         if type(location[0]) == str and type(int(location[1])) == int:
-            print("first check")
-            print(alpha_val,numeral_val, "1")
-            print(alpha_val[:n])
-
             if  0 < numeral_val <= n:
-                print("second check")
                 break
 
     alpha_val = str(location[0])
@@ -142,6 +140,6 @@ while True:
 
     modify_grid(location[0], (int(location[1])) - 1 , canonical_grid_state, alternate_turns())
 
-    win_check()
+    win_check(canonical_grid_state)
 
 # TODO Powerups Spawner
