@@ -1,5 +1,5 @@
-import random
 
+"""
 # Determine which player has the "x" pieces.
 # "x" pieces go first.
 def determine_who_goes_first(player1, player2):
@@ -52,6 +52,7 @@ number_of_pieces_placed_per_turn  = input("Enter the number of pieces you wish t
 
 
 
+"""
 help = """\n
   +--------------------------------+
 10|  a  b  c  d  .  .  .  .  .  .  |
@@ -68,6 +69,7 @@ help = """\n
     1  2  3  4  5  6  7  8  9  10 
 """
 
+"""
 
 # ANSI escape codes for text colors
 RED = "\033[91m"
@@ -90,6 +92,7 @@ help = help.replace("c", RED + "\\" + END)
 help = help.replace("d", RED + "\\" + END)
   
 print(help)
+"""
 
 # Display updated gameboard for every piece placed.
 # Then, show game recap and "Play Again?" prompt.
@@ -115,5 +118,16 @@ print(help)
 # TODO Game Logic 
 
 # TODO Grid Display
+grid_unit = "{}"
+grid_format = "{0:2d}"
 
+for i in range(19, 0, -1):
+    print(grid_format.format(i), grid_unit.format(" . ") * 20)
+
+bottom_numbers_format = "{}"
+alphabet = "abcdefghijklmnopqrstuvwxyz"
+print("    ", end = "")
+for i in range (0, 20):
+    print(bottom_numbers_format.format(alphabet[i]), " ", end = "")
+print()
 # TODO Powerups Spawner
