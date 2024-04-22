@@ -29,9 +29,6 @@ def new_game(ruleset, player1, player2):
     #TODO Implement newgame function.
     pass
     
-# Num of rows/cols.
-n = input("Enter the number of rows and columns desired.\n")
-print(n)
 
 # Powerups per turn.
 number_of_powerups = input("Enter the number of powerups per player turn.\n")
@@ -77,22 +74,35 @@ GREEN = "\033[92m"
 YELLOW = "\033[93m"
 BLUE = "\033[94m"
 PINK = "\x1b[38;5;205m"
-PURPLE = "\x1b[38;5;91m"
+CYAN = "\x1b[36m"
 END = "\033[0m"  # Reset color to default
 
-grid_unit = "{}"
-y_axis_number_format = "{0:2d}"
+pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
 
-grid_data = ["X", "O", "/", "\\", "|", "-"]
+while True:
+    # Num of rows/cols.
+    n = int(input("Enter the number of rows and columns desired. Must be a value between 3-52\n"))
+    if 3 <= n <= 53:
+        print()
+        break
 
-for i in range(51, -1, -1):
-    print(y_axis_number_format.format(i), " . " * 52 )
+# ANSI code to clear the screen.
+print('\033[H\033[J')
 
-bottom_numbers_format = "{}"
+for i in range(n, 0, -1):
+    # Print number prefix per row.
+    print("{:2d}".format(i), end = "  ")
+    for i in range(n):
+        # Print grid units.
+        print("{}".format(pieces[3]), end = "  ")
+    print("\n")
+
+# Spacing for x axis names.
+print("     ", end = "")
+# Values for x axis names.
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-print("    ", end = "")
-for i in range (0, 52):
-    print(bottom_numbers_format.format(alphabet[i]), " ", end = "")
-print()
-
+# Print x axis names per grid unit.
+for i in range(n):
+    print("{}".format(alphabet[i]), end = "    ")
+print("\n")
 # TODO Powerups Spawner
