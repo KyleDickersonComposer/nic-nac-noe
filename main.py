@@ -1,4 +1,3 @@
-
 """
 # Determine which player has the "x" pieces.
 # "x" pieces go first.
@@ -10,9 +9,6 @@ def determine_who_goes_first(player1, player2):
         player1.pieces = 'y'
         player2.pieces = 'x'
 
-class Player():
-    def __init__(self):
-        self.pieces = "TBD"
 # Game menu contents:
 # Default rulesets are displayed.
 while True:
@@ -48,61 +44,10 @@ number_of_pieces_placed_per_turn  = input("Enter the number of pieces you wish t
     # Players place their piece(s).
     # If player wins during turn break and show win screen.
 
-# Build grid of n x n size.
-
-
-
-"""
-help = """\n
-  +--------------------------------+
-10|  a  b  c  d  .  .  .  .  .  .  |
-9 |  .  b  .  .  .  .  .  .  .  .  |
-8 |  .  .  c  .  .  .  .  .  .  .  |
-7 |  .  .  .  d  .  .  .  .  .  .  |
-5 |  .  .  .  .  .  .  .  .  .  .  |
-6 |  .  .  .  .  .  .  .  .  .  .  |
-4 |  .  .  .  .  .  .  .  .  .  .  |
-3 |  .  .  .  .  .  .  .  .  .  .  |
-2 |  .  .  .  .  .  .  .  .  .  .  |
-1 |  .  .  .  .  .  .  .  .  .  .  |
-  +--------------------------------+
-    1  2  3  4  5  6  7  8  9  10 
-"""
-
-"""
-
-# ANSI escape codes for text colors
-RED = "\033[91m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-BLUE = "\033[94m"
-END = "\033[0m"  # Reset color to default
-
-# Print text in different colors
-print(RED + "This text is red." + END)
-print(GREEN + "This text is green." + END)
-print(YELLOW + "This text is yellow." + END)
-print(BLUE + "This text is blue." + END)
-
-print(help)
-
-help = help.replace("a", RED + "\\" + END)
-help = help.replace("b", RED + "\\" + END)
-help = help.replace("c", RED + "\\" + END)
-help = help.replace("d", RED + "\\" + END)
-  
-print(help)
 """
 
 # Display updated gameboard for every piece placed.
 # Then, show game recap and "Play Again?" prompt.
-# Powerup implementation.
-    # Powerups have a grid position and an activation pattern
-    # Individual types of powerups are subclasses of a baseclass Powerup that has members: grid position and activation pattern. Each powerup has its own pattern. The patterns are: "/", "\", "|", and "-"
-    # Powerups determine their position pseudo-randomly. And, they check if there are spots available before they are placed. They check to see if they overlap other pieces or not before placed.
-    # Powerups are triggered when a players places their piece ontop of it. Their pieces will not be destroyed, but the opposite type of pieces will be.
-    # Optionally, the players can decide to enable a special rule that makes powerup activations destory both types of piecees and other powerups caught in the activation zone.
-    # could add a red trail of the same powerup type along the path of the activation to visually show where the activation happened. This activation should be removed after next piece is placed. The smoke would also have to not hit a certain player as well. 
 
 # Lists will be pretty good for holding the various types of data that need to be held for this program. They can hold powerups and they can hold empty or they can hold pieces.
 
@@ -111,6 +56,14 @@ print(help)
 
 # TODO Data Structure for Grid and Pieces
 
+# Powerup implementation.
+    # Powerups have a grid position and an activation pattern
+    # Individual types of powerups are subclasses of a baseclass Powerup that has members: grid position and activation pattern. Each powerup has its own pattern. The patterns are: "/", "\", "|", and "-"
+    # Powerups determine their position pseudo-randomly. And, they check if there are spots available before they are placed. They check to see if they overlap other pieces or not before placed.
+    # Powerups are triggered when a players places their piece ontop of it. Their pieces will not be destroyed, but the opposite type of pieces will be.
+    # Optionally, the players can decide to enable a special rule that makes powerup activations destory both types of piecees and other powerups caught in the activation zone.
+    # could add a red trail of the same powerup type along the path of the activation to visually show where the activation happened. This activation should be removed after next piece is placed. The smoke would also have to not hit a certain player as well. 
+
 # TODO Powerups Animation
 
 # TODO Powerups Activation
@@ -118,16 +71,28 @@ print(help)
 # TODO Game Logic 
 
 # TODO Grid Display
-grid_unit = "{}"
-grid_format = "{0:2d}"
+# ANSI escape codes for text colors
+RED = "\033[91m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+BLUE = "\033[94m"
+PINK = "\x1b[38;5;205m"
+PURPLE = "\x1b[38;5;91m"
+END = "\033[0m"  # Reset color to default
 
-for i in range(19, 0, -1):
-    print(grid_format.format(i), grid_unit.format(" . ") * 20)
+grid_unit = "{}"
+y_axis_number_format = "{0:2d}"
+
+grid_data = ["X", "O", "/", "\\", "|", "-"]
+
+for i in range(51, -1, -1):
+    print(y_axis_number_format.format(i), " . " * 52 )
 
 bottom_numbers_format = "{}"
-alphabet = "abcdefghijklmnopqrstuvwxyz"
+alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 print("    ", end = "")
-for i in range (0, 20):
+for i in range (0, 52):
     print(bottom_numbers_format.format(alphabet[i]), " ", end = "")
 print()
+
 # TODO Powerups Spawner
