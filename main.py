@@ -105,3 +105,15 @@ print(help)
 
 # Win condition implementation.
     # Just do the simple n^2 check foreach of the possible match possibilities.
+
+# TODO Data Structure for Grid and Pieces
+
+# TODO Powerups Animation
+
+# TODO Powerups Activation
+
+# TODO Game Logic 
+
+# TODO Grid Display
+
+# TODO Powerups Spawner
