@@ -13,17 +13,9 @@ END = "\033[0m"  # Reset color to default
 xs_placed = 0
 os_placed = 0 
 
-
 pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
 
-def win_check(grid):
-    #TODO Horizontal Check
-    pass
-
-    
-    #TODO Vertical Check
-    #TODO Diagonal Check Downward
-    #Todo Diagonal Check Upward
+pieces_placed_on_this_player_turn = 0
 
 while True:
     # Num of rows/cols.
@@ -34,11 +26,8 @@ while True:
     if 3 <= n <= 53:
         print()
         break
-
-def pieces_to_place_per_player_turn():
-    return round(math.log(n**2,3))
-
-pieces_per_turn = pieces_to_place_per_player_turn()
+    
+pieces_per_turn =  math.floor(math.log(n**2,5))
 
 # Nested loop comprehension to create the 2D matrix for the grid.
 canonical_grid_state = [[pieces[0] for _ in range(n)] for _ in range(n)]
@@ -65,27 +54,27 @@ def scroll_screen():
     for _ in range(500):
         print()
 
-turn_switch = True
+turn_switch = False
 
 def alternate_turns():
     global turn_switch
-
     turn_switch = not turn_switch
 
+    global pieces_placed_on_this_player_turn
+    pieces_placed_on_this_player_turn = 0 
+
+
     if turn_switch:
-        return pieces[2]  # Return the piece for the new turn
+        return pieces[2]
     else:
-        return pieces[1]  # Return the piece for the new turn
+        return pieces[1]  
 
 def current_player_turn():
     global turn_switch
     if turn_switch:
-        return "X"
+        return "{}".format(pieces[2])
     else:
-        return "O"
-
-
-
+        return "{}".format(pieces[1])
 # TODO Modify grid State
 def modify_grid(alpha_index, numeral_index, grid, piece):
     # Add overlap checks
@@ -93,29 +82,118 @@ def modify_grid(alpha_index, numeral_index, grid, piece):
 
     global xs_placed
     global os_placed
+
     if piece == pieces[1]:
-        xs_placed = xs_placed + 1
+        xs_placed += 1
     else:
-        os_placed = os_placed + 1
-
-
+        os_placed += 1
 
 status_message = ""
 
+def win():
+    lock_game_state()
+
+
+def horizontal_check(grid):
+    for i in range(n):
+        count = 0 
+        
+        for j in range(n):
+            if grid[i][j] == current_player_turn():
+                count = count + 1
+
+        if count == n:
+            win()
+            return True
+
+        elif count != n and i != n:
+            continue
+
+        else: 
+            return False
+
+def vertical_check(grid):
+    for i in range(n):
+        count = 0 
+        
+        for j in range(n):
+            if grid[j][i] == current_player_turn():
+                count = count + 1
+
+        if count == n:
+            win()
+            return True
+
+        elif count != n and i != n:
+            continue
+
+        else: 
+            return False
+
+def diagonal_down_check(grid):
+    for i in range(n - 1):
+        count = 0
+        
+        for j in range(n - 1):
+            print(grid[i][j + 1], "{}".format(j))
+            print(current_player_turn())
+            if grid[i][j + 1] == current_player_turn():
+                count = count + 1
+
+        print(count)
+        if count == n - 1 and grid[n - 1][n -1] == current_player_turn():
+            win()
+            return True
+
+        elif count != n and i != n:
+            continue
+
+        else: 
+            return False
+
+def diagonal_up_check(grid):
+    #Todo Diagonal Check Upward
+    pass
+
+def win_check(grid):
+    horizontal_check(grid)
+
+    vertical_check(grid)
+
+    diagonal_up_check(grid)
+
+    diagonal_down_check(grid)
+
+def game_logic_turn():
+    global pieces_placed_on_this_player_turn
+    pieces_placed_on_this_player_turn += 1
+
+
+def display_status_text(message):
+    status_color_wrap = "{}{}{}".format(YELLOW, message, END)
+    print(status_color_wrap)
+
+def lock_game_state():
+
+    scroll_screen()
+    display_grid(canonical_grid_state)
+    display_status_text("{}'s WIN!".format(current_player_turn()))
+
+    exit(0)
 
 while True:
+    # ANSI code to clear the screen.
+    #print('\033[H\033[J')
+
+    game_logic_turn()
+
+    #scroll_screen()
     display_grid(canonical_grid_state)
-    
+
+    display_status_text(status_message)
+    status_message = ""
+
     while True:
-        # ANSI code to clear the screen.
-        #print('\033[H\033[J')
-
-        scroll_screen()
-        display_grid(canonical_grid_state)
-        status_color_wrap = "{}{}{}".format(YELLOW, status_message, END)
-        print(status_color_wrap)
-        status_message = ""
-
         #TODO Implement bounds checking.
         valid_alpha_chars = alphabet[:n]
         hud_text = "{}'s turn. Xs placed: {}. Os placed: {}. \n".format(current_player_turn(), xs_placed, os_placed)
@@ -152,6 +230,14 @@ while True:
         if canonical_grid_state[alphabet.index(alpha_val)][numeral_val-1] == pieces[1] or canonical_grid_state[alphabet.index(alpha_val)][numeral_val-1] == pieces[2]:
             continue
         else:   
-            modify_grid(alpha_val, numeral_val,  canonical_grid_state, alternate_turns())
+            modify_grid(alpha_val, numeral_val,  canonical_grid_state, current_player_turn())
+            break
 
-        win_check(canonical_grid_state)
+    win_check(canonical_grid_state)
+
+
+    print(pieces_per_turn, "pieces per turn values" )
+    print(pieces_placed_on_this_player_turn, "pieces placed this player turn")
+
+    if pieces_placed_on_this_player_turn >= pieces_per_turn:
+        alternate_turns()
