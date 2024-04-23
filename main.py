@@ -27,12 +27,9 @@ END = "\033[0m"  # Reset color to default
 
 pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
 
-
 def win_check(grid):
     #TODO Horizontal Check
-    for i in range(n):
-        pieces_to_check = grid[i]
-        print(pieces_to_check)
+    pass
 
     
     #TODO Vertical Check
@@ -57,18 +54,21 @@ pieces_per_turn = pieces_to_place_per_player_turn()
 # Nested loop comprehension to create the 2D matrix for the grid.
 canonical_grid_state = [[pieces[0] for _ in range(n)] for _ in range(n)]
 
+canonical_grid_state[0][0] = pieces[4]
+canonical_grid_state[n-1][n-1] = pieces[4]
+
 # Display the grid.
 def display_grid(grid_state):
-    for i in range(n , 0 , -1):
+    for i in range(n):
         # Print number prefix per row.
-        print("{:2d}".format(i), end = "  ")
+        print("{}".format(alphabet[i]), end = "  ")
         for j in range(0, n):
-            print(grid_state[i - 1][j - 1], end = "  ")
+            print(grid_state[i][j], end = "  ")
 
         print("\n")
-    print("     ", end = "")
+    print("   ", end = "")
     for i in range(n):
-        print("{}".format(alphabet[i]), end = "    ")
+        print("{:2d}".format(i + 1), end = "   ")
     print("\n")
 
 # Spacing for x axis names.
@@ -94,52 +94,47 @@ def alternate_turns():
 # TODO Modify grid State
 def modify_grid(alpha_index, numeral_index, grid, piece):
     # Add overlap checks
-    grid[numeral_index][alphabet.index(alpha_index) - 1] = piece
+    grid[alphabet.index(alpha_index)][numeral_index - 1] = piece
 
 
 while True:
+    display_grid(canonical_grid_state)
     
     while True:
         # ANSI code to clear the screen.
-        #print('\033[H\033[J')
-        #scroll_screen()
-        display_grid(canonical_grid_state)
 
         #TODO Implement bounds checking.
         valid_alpha_chars = alphabet[:n]
-        location = (input("Place your piece. For example: A 1\n"))
+        location = (input("Place your piece. \n"))
 
         location = location.split()
 
         l_len = len(location)
 
         if l_len < 2:
+            print("Not enough arguments", "For example: A 1")
             continue
         elif l_len > 2:
+            print("Too many arguments", "For example: A 1")
             continue
 
         alpha_val = location[0]
         numeral_val = location[1]
 
-
         if not alpha_val in valid_alpha_chars:
+            print("Not a valid alpha input", "For example: A 1")
             continue
 
-        try:
-            numeral_val = int (numeral_val) and numeral_val != 0
-        except:
+        numeral_val = int (numeral_val)
+        
+        if  numeral_val < 1 or numeral_val > n:
+            print("Number should be between 1 and {}".format(n), "val:", numeral_val)
             continue
 
+        modify_grid(alpha_val, numeral_val,  canonical_grid_state, alternate_turns())
 
-        if type(location[0]) == str and type(int(location[1])) == int:
-            if  0 < numeral_val <= n:
-                break
+        win_check(canonical_grid_state)
 
-    alpha_val = str(location[0])
-    numeral_val = int (location[1])
-
-    modify_grid(location[0], (int(location[1])) - 1 , canonical_grid_state, alternate_turns())
-
-    win_check(canonical_grid_state)
-
-# TODO Powerups Spawner
+        print('\033[H\033[J')
+        scroll_screen()
+        display_grid(canonical_grid_state)
