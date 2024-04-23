@@ -130,39 +130,46 @@ def vertical_check(grid):
         else: 
             return False
 
-def diagonal_down_check(grid):
-    for i in range(n - 1):
-        count = 0
-        
-        for j in range(n - 1):
-            print(grid[i][j + 1], "{}".format(j))
-            print(current_player_turn())
-            if grid[i][j + 1] == current_player_turn():
-                count = count + 1
+dia_down_count = 0 
+dia_up_count = 0
 
-        print(count)
-        if count == n - 1 and grid[n - 1][n -1] == current_player_turn():
-            win()
-            return True
+def diagonal_down_check(grid, current_pieces):
+    global dia_down_count
+    dia_down_count = 0 
 
-        elif count != n and i != n:
-            continue
+    for i in range(0, n-1):
+        if grid[i][i] == current_pieces:
+            dia_down_count += 1
 
-        else: 
-            return False
+    if dia_down_count == n - 1 and grid[n-1][n-1] == current_pieces:
+        win()
 
-def diagonal_up_check(grid):
-    #Todo Diagonal Check Upward
-    pass
+def diagonal_up_check(grid, current_pieces):
+    global dia_up_count
+    dia_up_count = 0
 
-def win_check(grid):
-    horizontal_check(grid)
+    j = n-1
 
-    vertical_check(grid)
+    for i in range(0 , n-1):
+        print(j, "val: j")
+        if grid[i][j] == current_pieces:
+            dia_up_count += 1
+            j -= 1
 
-    diagonal_up_check(grid)
+    print(grid[0][n-1])
+    print(dia_up_count, "count up")
 
-    diagonal_down_check(grid)
+    if dia_up_count == n - 1 and grid[n-1][0] == current_pieces:
+        win()
+
+def win_check():
+    horizontal_check(canonical_grid_state)
+
+    vertical_check(canonical_grid_state)
+
+    diagonal_down_check(canonical_grid_state, current_player_turn())
+
+    diagonal_up_check(canonical_grid_state, current_player_turn())
 
 def game_logic_turn():
     global pieces_placed_on_this_player_turn
@@ -175,7 +182,7 @@ def display_status_text(message):
 
 def lock_game_state():
 
-    scroll_screen()
+    #scroll_screen()
     display_grid(canonical_grid_state)
     display_status_text("{}'s WIN!".format(current_player_turn()))
 
@@ -191,6 +198,7 @@ while True:
     display_grid(canonical_grid_state)
 
     display_status_text(status_message)
+
     status_message = ""
 
     while True:
@@ -233,11 +241,7 @@ while True:
             modify_grid(alpha_val, numeral_val,  canonical_grid_state, current_player_turn())
             break
 
-    win_check(canonical_grid_state)
-
-
-    print(pieces_per_turn, "pieces per turn values" )
-    print(pieces_placed_on_this_player_turn, "pieces placed this player turn")
+    win_check()
 
     if pieces_placed_on_this_player_turn >= pieces_per_turn:
         alternate_turns()
