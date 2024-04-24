@@ -19,6 +19,8 @@ PINK = "\x1b[38;5;205m"
 CYAN = "\x1b[36m"
 END = "\033[0m"  # Reset color to default
 
+n = 0 
+
 xs_placed = 0
 os_placed = 0 
 
