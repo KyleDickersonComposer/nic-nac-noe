@@ -1,8 +1,6 @@
 import random
 import math
 
-#remove comment to enable.
-#debug = debug_mode_toggle(debug)
 
 # TODO Grid Display
 # ANSI escape codes for text colors
@@ -21,22 +19,29 @@ xs_placed = 0
 
 os_placed = 0 
 
-pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
-
 pieces_placed_on_this_player_turn = 0
-    
-pieces_per_turn = math.floor(math.log(n**2,3))
+
+pieces_to_place_for_each_player_turn = 0 
+
+turn_switch = False
+
+status_message = ""
+
+def get_pieces():
+    return [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
+
+def get_pieces_per_player_turn(_n):
+    return math.floor(math.log(_n**2,3))
+
+def get_alphabet():
+    # Values for x axis names.
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 # Nested loop comprehension to create the 2D matrix for the grid.
 def get_grid(_n):
+    pieces = get_pieces()
+
     return [[pieces[0] for _ in range(_n)] for _ in range(_n)]
-
-# Values for x axis names.
-alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-# Print x axis names per grid unit.
-
-turn_switch = False
-status_message = ""
 
 def get_xs_placed():
     global xs_placed
@@ -54,10 +59,9 @@ def o_placed():
     global os_placed
     os_placed += 1
 
-def debug_mode_toggle(_debug):
-    _debug = not _debug
-
 def current_player_turn():
+    pieces = get_pieces()
+
     global turn_switch
 
     if turn_switch:
@@ -66,6 +70,16 @@ def current_player_turn():
         return "{}".format(pieces[1])
 
 def modify_grid(_coords, _piece, _grid):
+    pieces = get_pieces()
+    alphabet = get_alphabet()
+
+
+    #Inputs are valid.
+    #Convert string coords to int.
+    alpha_index = alphabet.index(_coords[0])
+    numeral_index = int (_coords[1])
+    numeral_index -= 1
+
     if _piece == pieces[1]:
         x_placed()
 
@@ -74,15 +88,17 @@ def modify_grid(_coords, _piece, _grid):
 
     if (_piece == pieces[1] or _piece == pieces[2])\
         and (_piece != pieces[3] and _piece != pieces[4] and _piece != pieces[5] and _piece != pieces[6])\
-        and (_grid[_coords[0]][_coords[1]] == pieces[3] or _grid[_coords[0]][_coords[1]] == pieces[4] or _grid[_coords[0]][_coords[1]] == pieces[5] or _grid[_coords[0]][_coords[1]] == pieces[6]):
-        powerup_logic(_coords, _grid[_coords[0]][_coords[1]])
+        and (_grid[alpha_index][numeral_index] == pieces[3] or _grid[alpha_index][numeral_index] == pieces[4] or _grid[alpha_index][numeral_index] == pieces[5] or _grid[alpha_index][numeral_index] == pieces[6]):
+        powerup_logic(_coords, _grid[alpha_index][numeral_index])
 
-    _grid[_coords[0]][_coords[1]] = _piece
+    _grid[alpha_index][numeral_index] = _piece
 
-    display_grid(_grid)
     return _grid
 
 def display_grid(grid_state):
+    n = get_n_val()
+    alphabet = get_alphabet()
+
     print()
     for i in range(n):
         # Print number prefix per row.
@@ -96,18 +112,21 @@ def display_grid(grid_state):
         print("{:2d}".format(i + 1), end = "   ")
     print("\n")
 
+def clear_screen():
+    print('\033[H\033[J')
+    scroll_screen()
 
-def alternate_turns(_switch):
-    _switch = not _switch
+def alternate_player_turn():
+    global turn_switch
 
-    global pieces_placed_on_this_player_turn
-    pieces_placed_on_this_player_turn = 0 
+    turn_switch = not turn_switch
 
+    set_pieces_placed_on_this_player_turn(0)
 
-    if _switch:
-        return pieces[2]
+    if turn_switch:
+        current_player_turn()
     else:
-        return pieces[1]  
+        current_player_turn()
 
 
 def draw():
@@ -115,6 +134,9 @@ def draw():
     exit()
 
 def ugly_powerup_placement_checks(_grid):
+    pieces = get_pieces()
+    n = get_n_val()
+
     try_count = 0
 
     while True:
@@ -140,6 +162,7 @@ def win(_grid):
     lock_game_state(_grid)
 
 def horizontal_check(_grid):
+    n = get_n_val()
     for i in range(n):
         count = 0 
         
@@ -158,6 +181,7 @@ def horizontal_check(_grid):
             return False
 
 def vertical_check(_grid):
+    n = get_n_val()
     for i in range(n):
         count = 0 
         
@@ -177,29 +201,35 @@ def vertical_check(_grid):
 
 
 def diagonal_down_check(_grid):
+    n = get_n_val()
+    current_pieces = current_player_turn()
     dia_down_count = 0 
 
+
     for i in range(0, n-1):
-        if _grid[i][i] == pieces:
+        if _grid[i][i] == current_pieces:
             dia_down_count += 1
 
-    if dia_down_count == n - 1 and _grid[n-1][n-1] == pieces:
+    if dia_down_count == n - 1 and _grid[n-1][n-1] == current_pieces:
         win(_grid)
 
 def diagonal_up_check(_grid):
+    n = get_n_val()
+    current_pieces = current_player_turn()
     dia_up_count = 0
 
     j = n-1
 
     for i in range(0 , n-1):
-        if _grid[i][j] == pieces:
+        if _grid[i][j] == current_pieces:
             dia_up_count += 1
             j -= 1
 
-    if dia_up_count == n - 1 and _grid[n-1][0] == pieces:
+    if dia_up_count == n - 1 and _grid[n-1][0] == current_pieces:
         win(_grid)
 
 def win_check(_grid):
+    print("checking win")
     horizontal_check(_grid)
 
     vertical_check(_grid)
@@ -224,6 +254,8 @@ def lock_game_state(_grid):
     exit(0)
 
 def powerup_logic(_coords, _powerup_type):
+    pieces = get_pieces()
+    n = get_n_val()
     # Powerup type: /
     print("powerup type val:", _powerup_type)
     if _powerup_type == pieces[3]:
@@ -252,16 +284,31 @@ def powerup_logic(_coords, _powerup_type):
     elif _powerup_type == pieces[6]:
         print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
 
-def get_n_val():
+def init_n_val():
 
     try:
-        n = int(input("Enter the number of rows and columns desired. Must be a value between 3-52\n"))
+        n = int(input("Enter desired board size: "))
     except:
         return False
 
     if 3 <= n <= 53:
-        return True
+        return n
 
+def get_n_val():
+    global n
+    return n
+
+def set_n_val(_n):
+    global n 
+    n = _n
+
+def set_status_message(_message):
+    global status_message
+    status_message = _message
+
+def get_status_message():
+    global status_message
+    return status_message
 
 def display_in_gameloop(_grid):
 #display first screen
@@ -269,7 +316,8 @@ def display_in_gameloop(_grid):
     display_status_text(status_message)
 
 def get_input(_prompt):
-    location = input(_prompt)
+    print(_prompt)
+    location = input("Enter coordiates: ")
     location = location.split()
     return location
 
@@ -279,47 +327,72 @@ def valid_input(_input):
 
     #check piece location input
 
-    valid_alpha_chars = alphabet[:n]
+    alphabet = get_alphabet()
+
+    n = get_n_val()
+
 
     l_len = len(_input)
     if l_len < 2:
-        status_message = "Not enough arguments. For example: A 1"
-        return False, status_message
+
+        set_status_message("Not enough arguments. For example: A 1")
+        return False
  
     elif l_len > 2:
-        status_message = "Too many arguments. For example: A 1"
-        return False, status_message
+        set_status_message("Too many arguments. For example: A 1")
+        return False
  
 
+    valid_alpha_chars = alphabet[:n]
     alpha_val = _input[0]
     numeral_val = _input[1]
 
     if not alpha_val in valid_alpha_chars:
-        status_message = "Not a valid alpha input. For example: A 1"
-        return False, status_message
+        set_status_message("Not a valid alpha input. For example: A 1")
+        return False
 
     try:
         numeral_val = int (numeral_val)
     except:
-        status_message = "the second value should be a number. For example: A 1"
-        return False, status_message
+        set_status_message("The second value should be a number. For example: A 1")
+        return False
 
     if  numeral_val < 1 or numeral_val > n:
-        status_message = "Number should be between 1 and {}. val: {}.".format(n, numeral_val)
-        return False, status_message
+        set_status_message("Number should be between 1 and {}. val: {}.".format(n, numeral_val))
+        return False
+
     else:
+        set_status_message("")
         return True
 
 def check_for_overlap(_coords, _grid):
+    pieces = get_pieces()
     #check for X's and O's overlapping each other
     if _grid[_coords[0]][_coords[1]] == pieces[1] or _grid[_coords[0]][_coords[1]] == pieces[2]:
         status_message = "Can't place an X or O ontop of on another."
         return False, status_message
     
+def get_pieces_placed_on_this_player_turn():
+    global pieces_placed_on_this_player_turn
+    return pieces_placed_on_this_player_turn
+
+def set_pieces_placed_on_this_player_turn(_val):
+    global pieces_placed_on_this_player_turn
+    pieces_placed_on_this_player_turn = _val
+
+def iterate_pieces_placed_on_this_player_turn():
+    global pieces_placed_on_this_player_turn
+    pieces_placed_on_this_player_turn += 1
+
+
 def handle_change_turn(_grid):
+    global pieces_to_place_for_each_player_turn
+
+    pieces_placed_on_this_player_turn = get_pieces_placed_on_this_player_turn()
+    pieces_per_turn = pieces_to_place_for_each_player_turn
 
     print(pieces_placed_on_this_player_turn, "placed", pieces_per_turn, "placements per turn")
     if pieces_placed_on_this_player_turn >= pieces_per_turn:
-        alternate_turns(turn_switch)
+        alternate_player_turn()
         return ugly_powerup_placement_checks(_grid)
 
