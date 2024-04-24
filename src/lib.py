@@ -10,7 +10,7 @@ def current_player_turn(_switch):
     else:
         return "{}".format(main.pieces[1])
 
-def modify_grid(alpha_index, numeral_index, _piece, _grid):
+def modify_grid(_coords, _piece, _grid):
     if _piece == main.pieces[1]:
         main.xs_placed += 1
     elif _piece == main.pieces[2]:
@@ -18,10 +18,10 @@ def modify_grid(alpha_index, numeral_index, _piece, _grid):
 
     if (_piece == main.pieces[1] or _piece == main.pieces[2])\
         and (_piece != main.pieces[3] and _piece != main.pieces[4] and _piece != main.pieces[5] and _piece != main.pieces[6])\
-        and (main.grid[alpha_index][numeral_index-1] == main.pieces[3] or main.grid[alpha_index][numeral_index-1] == main.pieces[4] or main.grid[alpha_index][numeral_index-1] == main.pieces[5] or main.grid[alpha_index][numeral_index-1] == main.pieces[6]):
-        powerup_logic(alpha_index, numeral_index-1, main.grid[alpha_index][numeral_index-1])
+        and (main.grid[_coords[0]][_coords[1]] == main.pieces[3] or main.grid[_coords[0]][_coords[1]] == main.pieces[4] or main.grid[_coords[0]][_coords[1]] == main.pieces[5] or main.grid[_coords[0]][_coords[1]] == main.pieces[6]):
+        powerup_logic(_coords, main.grid[_coords[0]][_coords[1]])
 
-    main.grid[alpha_index][numeral_index-1] = _piece
+    main.grid[_coords[0]][_coords[1]] = _piece
 
     display_grid(_grid)
     return _grid
@@ -62,14 +62,14 @@ def ugly_powerup_placement_checks(_grid):
     try_count = 0
 
     while True:
-        
         powerup_numeral_pos = random.randint(0, main.n-1)
         powerup_alpha_pos =  random.randint(0, main.n-1)
 
         random_powerup = main.pieces[random.randint(3, 6)]
 
         if _grid[powerup_alpha_pos][powerup_numeral_pos] != main.pieces[1] and _grid[powerup_alpha_pos-1][powerup_numeral_pos] != main.pieces[2] and _grid[powerup_alpha_pos][powerup_numeral_pos] == main.pieces[0] or _grid[powerup_alpha_pos][powerup_numeral_pos] == main.pieces[3] or _grid[powerup_alpha_pos][powerup_numeral_pos] == main.pieces[4] or _grid[powerup_alpha_pos][powerup_numeral_pos] == main.pieces[5] or _grid[powerup_alpha_pos][powerup_numeral_pos] == main.pieces[6]:
-            _grid = modify_grid(powerup_alpha_pos, powerup_numeral_pos+1, random_powerup, _grid)
+            #random +1 might be a bug or something.
+            _grid = modify_grid((powerup_alpha_pos, powerup_numeral_pos+1), random_powerup, _grid)
             
             break
         elif try_count >= 10000:
@@ -169,15 +169,15 @@ def lock_game_state(_grid, _turn_switch):
 
     exit(0)
 
-def powerup_logic(alpha_val, numeral_val, powerup_type):
+def powerup_logic(_coords, _powerup_type):
     # Powerup type: /
-    print("powerup type val:", powerup_type)
-    if powerup_type == main.pieces[3]:
-        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+    print("powerup type val:", _powerup_type)
+    if _powerup_type == main.pieces[3]:
+        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
 
         max_effect = main.n-1
 
-        effect_size = max_effect - alpha_val
+        effect_size = max_effect - _coords[0]
 
         for _ in range(effect_size):
             pass
@@ -187,15 +187,86 @@ def powerup_logic(alpha_val, numeral_val, powerup_type):
         #
 
     # Powerup type: \
-    elif powerup_type == main.pieces[4]:
-        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+    elif _powerup_type == main.pieces[4]:
+        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
 
     # Powerup type: |
-    elif powerup_type == main.pieces[5]:
-        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+    elif _powerup_type == main.pieces[5]:
+        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
     
     # Powerup type: -
-    elif powerup_type == main.pieces[6]:
-        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+    elif _powerup_type == main.pieces[6]:
+        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
+
+def get_n_val():
+
+    try:
+        n = int(input("Enter the number of rows and columns desired. Must be a value between 3-52\n"))
+    except:
+        return False
+
+    if 3 <= n <= 53:
+        return True
 
 
+def display_in_gameloop():
+#display first screen
+    display_grid(main.grid)
+
+    display_status_text(main.status_message)
+
+def get_input(_prompt):
+    location = input(_prompt)
+    location = location.split()
+    return location
+    
+
+def valid_input(_input):
+
+    #validation logic is displaying the grid == bad.
+
+    #check piece location input
+
+    valid_alpha_chars = main.alphabet[:main.n]
+
+    l_len = len(_input)
+    if l_len < 2:
+        status_message = "Not enough arguments. For example: A 1"
+        return False, status_message
+ 
+    elif l_len > 2:
+        status_message = "Too many arguments. For example: A 1"
+        return False, status_message
+ 
+
+    alpha_val = _input[0]
+    numeral_val = _input[1]
+
+    if not alpha_val in valid_alpha_chars:
+        status_message = "Not a valid alpha input. For example: A 1"
+        return False, status_message
+
+    try:
+        numeral_val = int (numeral_val)
+    except:
+        status_message = "the second value should be a number. For example: A 1"
+        return False, status_message
+
+    if  numeral_val < 1 or numeral_val > main.n:
+        status_message = "Number should be between 1 and {}. val: {}.".format(main.n, numeral_val)
+        return False, status_message
+
+    #check for X's and O's overlapping each other
+    if main.grid[main.alphabet.index(alpha_val)][numeral_val-1] == main.pieces[1] or main.grid[main.alphabet.index(alpha_val)][numeral_val-1] == main.pieces[2]:
+        status_message = "Can't place an X or O ontop of on another."
+        return False, status_message
+
+    else:
+        return True
+
+def handle_change_turn():
+
+    print(main.pieces_placed_on_this_player_turn, "placed", main.pieces_per_turn, "placements per turn")
+    if main.pieces_placed_on_this_player_turn >= main.pieces_per_turn:
+        alternate_turns(main.turn_switch)
+        main.grid = ugly_powerup_placement_checks(main.grid)
