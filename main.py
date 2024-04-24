@@ -10,7 +10,7 @@ def debug_mode_toggle():
     debug = not debug
 
 #Enable debug mode here
-#debug_mode_toggle()
+debug_mode_toggle()
 
 # TODO Grid Display
 # ANSI escape codes for text colors
@@ -34,7 +34,6 @@ def current_player_turn():
 
 def modify_grid(alpha_index, numeral_index, piece):
     global canonical_grid_state
-    canonical_grid_state[alpha_index][numeral_index-1] = piece
 
     global xs_placed
     global os_placed
@@ -44,13 +43,16 @@ def modify_grid(alpha_index, numeral_index, piece):
     elif piece == pieces[2]:
         os_placed += 1
 
-    powerup_check_clean_piece = piece.rstrip()
+    print("third check: Newly placed piece will overlap powerup", (canonical_grid_state[alpha_index][numeral_index-1] == pieces[3] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[4] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[5] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[6]))
+    print()
 
-    powerup_check_clean_piece = " {} ".format(piece)
+    if (piece == pieces[1] or piece == pieces[2])\
+        and (piece != pieces[3] and piece != pieces[4] and piece != pieces[5] and piece != pieces[6])\
+        and (canonical_grid_state[alpha_index][numeral_index-1] == pieces[3] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[4] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[5] or canonical_grid_state[alpha_index][numeral_index-1] == pieces[6]):
+        print("calling powerup_logix with values. Alpha: {}. Numeral: {}".format( alpha_index, numeral_index - 1))
+        powerup_logic(alpha_index, numeral_index-1, canonical_grid_state[alpha_index][numeral_index-1], piece)
 
-    powerup_logic(alpha_index, numeral_index, powerup_check_clean_piece)
-
-    
+    canonical_grid_state[alpha_index][numeral_index-1] = piece
 
     return canonical_grid_state
 
@@ -239,15 +241,25 @@ def lock_game_state():
 
     exit(0)
 
-def powerup_logic(alpha_val, numeral_val, powerup_type):
-    if powerup_type == " / ":
-        pass
-    if powerup_type == " \\ ":
-        pass
-    if powerup_type == " | ":
-        pass
-    if powerup_type == " - ":
-        pass
+def powerup_logic(alpha_val, numeral_val, powerup_type, activating_piece):
+    global canonical_grid_state
+
+    # Powerup type: /
+    print("powerup type val:", powerup_type)
+    if powerup_type == pieces[3]:
+        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+
+    # Powerup type: \
+    if powerup_type == pieces[4]:
+        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+
+    # Powerup type: |
+    if powerup_type == pieces[5]:
+        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
+    
+    # Powerup type: -
+    if powerup_type == pieces[6]:
+        print("alpha:{} num:{} powerup:{}".format(alpha_val,numeral_val,powerup_type))
 
 while True:
     if debug == False:
@@ -281,9 +293,13 @@ while True:
 
         if l_len < 2:
             status_message = "Not enough arguments. For example: A 1"
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
         elif l_len > 2:
             status_message = "Too many arguments. For example: A 1"
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
 
         alpha_val = location[0]
@@ -291,19 +307,27 @@ while True:
 
         if not alpha_val in valid_alpha_chars:
             status_message = "Not a valid alpha input. For example: A 1"
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
 
         try:
             numeral_val = int (numeral_val)
         except:
             status_message = "the second value should be a number. For example: A 1"
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
         
         if  numeral_val < 1 or numeral_val > n:
             status_message = "Number should be between 1 and {}. val: {}.".format(n, numeral_val)
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
 
         if canonical_grid_state[alphabet.index(alpha_val)][numeral_val-1] == pieces[1] or canonical_grid_state[alphabet.index(alpha_val)][numeral_val-1] == pieces[2]:
+            display_grid(canonical_grid_state)
+            display_status_text(status_message)
             continue
         else:   
             canonical_grid_state = modify_grid(alphabet.index(alpha_val), numeral_val, current_player_turn())
