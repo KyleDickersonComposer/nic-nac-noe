@@ -15,59 +15,60 @@ while True:
 
 game_state = lib.GameState(n)
 
+
 while True:
-    while True:
-        #If debug mode is true print debug statements will be hidden.
-        if debug_mode == False:
-            # ANSI code to clear the screen.
-            lib.clear_screen()
-
-        if game_state.status_message != "":
-            lib.display_status_text(game_state.status_message)
-
-        game_state.random_powerup = ""
-
-        hud_text = "{}'s turn. Xs placed: {}. Os placed: {}. \n".format(game_state.current_player_turn(), game_state.xs_placed, game_state.os_placed)
+    #If debug mode is true print debug statements will be hidden.
+    if debug_mode == False:
+        # ANSI code to clear the screen.
+        lib.clear_screen()
 
 
-        while True:
-            #May have to add check for if pieces x, so that powerups are placed once per 2 player turns. Then, spawn powerup if too many powerups.
-            try_coords = lib.get_powerup_coords(game_state.n)
+    hud_text = "{}'s turn. Xs placed: {}. Os placed: {}. \n".format(game_state.current_player_turn(), game_state.xs_placed, game_state.os_placed)
 
-            print(try_coords)
-            is_valid = lib.validate_powerup_placement(try_coords, game_state.pieces, game_state.grid, game_state.sublist, game_state.n, game_state) 
-            game_state.random_powerup = lib.get_random_powerup(game_state.list_of_powerups)
-            if is_valid == True:
-                grid = lib.modify_grid(try_coords, game_state.random_powerup, game_state.grid, game_state.pieces, game_state)
-                break
-            else:
-                continue
+    lib.display_in_gameloop(game_state)
 
-        lib.display_grid(game_state.grid, game_state.n, game_state.alphabet)
+    prompt_result = lib.get_input(hud_text)
+    is_valid = lib.valid_input(prompt_result, game_state.alphabet, game_state.n, game_state)
+    if is_valid == True:
+        player_input = lib.clean_input(prompt_result, game_state.alphabet)
 
-        prompt_result = lib.get_input(hud_text)
-        is_valid = lib.valid_input(prompt_result, game_state.alphabet, game_state.n, game_state)
-        if is_valid:
-            player_input = lib.clean_input(prompt_result, game_state.alphabet)
-        else:
-            continue
-
-        check = lib.overlap_check(player_input, game_state, game_state.pieces, game_state.grid)
+        check = lib.overlap_check(player_input, game_state, game_state.grid)
         
         if check == True:
-            if lib.piece_is_powerup(player_input, game_state.pieces, game_state.grid, game_state.list_of_powerups) == True:
-                lib.powerup_activation_logic(player_input, game_state, game_state.list_of_powerups, game_state.n)  
 
-            grid = lib.modify_grid(player_input, game_state.current_player_turn(), game_state.grid, game_state.pieces, game_state)
+            game_state.grid = lib.modify_grid(player_input, game_state.current_player_turn(), game_state.grid, game_state)
             game_state.pieces_placed_on_this_player_turn += 1
 
+            if lib.piece_is_powerup(player_input, game_state.grid, game_state.set_of_powerups) == True:
+                powerup_this_turn = lib.get_random_powerup(game_state.set_of_powerups)
+                print("activating this powerup:", powerup_this_turn)
+                lib.powerup_activation_logic(player_input, powerup_this_turn, game_state.set_of_powerups, game_state.n)  
 
-        elif check == False:
-            continue
 
-        lib.win_check(game_state.grid, game_state.n, game_state.current_player_turn(), game_state.alphabet)
+            if game_state.pieces_placed_on_this_player_turn == game_state.pieces_to_place_for_each_player_turn:
+                print("here")
+                while True:
+                    #Place a piece
+                    try_coords = lib.get_random_powerup_coords(game_state.n)
+
+                    #broken Coords dont overwrite a X or Y
+                    is_valid = lib.validate_powerup_placement(try_coords, game_state.grid, game_state.sub_set_of_replacedable_pieces, game_state.n) 
+
+                    
+                    if is_valid == True:
+
+                        powerup_this_turn = lib.get_random_powerup(game_state.set_of_powerups)
+
+                        if game_state.pieces_placed_on_this_player_turn == game_state.pieces_to_place_for_each_player_turn:
+                            game_state.grid = lib.modify_grid(try_coords, powerup_this_turn, game_state.grid, game_state)
+                            game_state.alternate_player_turn(game_state)
+                            break
+
+
+
+    lib.draw_check(game_state)
+
+    lib.win_check(game_state.grid, game_state.n, game_state.current_player_turn(), game_state.alphabet)
 
         #Game logic for after placement of a piece.
         #If you have placed all the pieces for your turn, then handle next turn.
-        if game_state.pieces_placed_on_this_player_turn == game_state.pieces_to_place_for_each_player_turn:
-            game_state.alternate_player_turn(game_state)
