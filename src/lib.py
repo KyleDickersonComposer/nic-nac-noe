@@ -252,7 +252,7 @@ def overlap_check(_coords, _game_state, _pieces, _grid, _current_player_turn):
     print(_coords, "overlap coords")
 
     if _grid[_coords[0]][_coords[1]] == _pieces[1] or _grid[_coords[0]][_coords[1]] == _pieces[1]:
-        _game_state.status_message = "Place your piece on a dot or powerup"
+        _game_state.status_message = "Place your piece on a dot or powerup."
         return False
     else:
         return True

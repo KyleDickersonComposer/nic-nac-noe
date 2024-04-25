@@ -1,6 +1,6 @@
 import lib 
 
-debug_mode = True
+debug_mode = False
 
 lib.clear_screen()
 
