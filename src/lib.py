@@ -16,7 +16,8 @@ class GameState:
         self.n = _n
         self.xs_placed = 0
         self.os_placed = 0
-        self.pieces_to_place_for_each_player_turn = math.floor(math.log(self.n**2,3))
+        #self.pieces_to_place_for_each_player_turn = math.floor(math.log(self.n**2,3))
+        self.pieces_to_place_for_each_player_turn = 1 
         self.pieces_placed_on_this_player_turn = 0
         self.turn_switch = False
         self.status_message = ""
@@ -25,6 +26,8 @@ class GameState:
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         self.sublist = [" . ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
         self.list_of_x_and_y = [" X ", " O "]
+        self.list_of_powerups = [YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
+        self.random_powerup = ""
  
 
     def current_player_turn(self):
@@ -59,8 +62,11 @@ def get_powerup_coords(_n):
 
     return (alpha_val, numeral_val)
 
-def get_random_powerup(_pieces):
-    return _pieces[random.randint(3,6)]
+def get_random_powerup(_list_of_powerups):
+    r = random.randint(0, 3)
+    powerup = _list_of_powerups[r]
+
+    return powerup
 
 def help(_sublist, _grid, _n):
     reduce = []
@@ -75,16 +81,15 @@ def help(_sublist, _grid, _n):
     else:
         return True
 
-    
-
-def validate_powerup_placement(_coords, _pieces, _grid, _sublist, _n):
+def validate_powerup_placement(_coords, _pieces, _grid, _sublist, _n, _game_state):
     location = _grid[_coords[0]][_coords[1]]
+    print(location)
 
     if (location != _pieces[1] and location != _pieces[2]) and location == _pieces[0] or location == _pieces[3] or location == _pieces[4] or location == _pieces[5] or location == _pieces[6]:
         return True
 
     if help(_sublist, _grid, _n):
-        draw()
+        draw(_game_state)
     else:
         return False
 
@@ -117,7 +122,8 @@ def clear_screen():
     print('\033[H\033[J')
     scroll_screen()
 
-def draw():
+def draw(_game_state):
+    display_grid(_game_state.grid, _game_state.n, _game_state.alphabet)
     print("Draw Game")
     exit()
 
@@ -207,40 +213,58 @@ def scroll_screen():
         print()
 
 
-def powerup_activation_logic(_coords, _powerup_type, _pieces, _n):
+def powerup_activation_logic(_coords, _game_state, _list_of_powerups, _n):
+
     # Powerup type: /
-    print("powerup type val:", _powerup_type)
-    if _powerup_type == _pieces[3]:
-        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
+    print("powerup type val:", _game_state.random_powerup)
+    print("boom!")
+    #wrong
+    if _game_state.random_powerup == _list_of_powerups[0]:
+        print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _game_state.random_powerup))
 
         max_effect = _n-1
 
         effect_size = max_effect - _coords[0]
 
         for _ in range(effect_size):
+            print("test")
             pass
+        _game_state.random_powerup = ""
 
         #foreach step away from [0],[n], max_effect -1
         #only numeral val matters because of how effect is applied to best case only.
         #
 
     # Powerup type: \
-    elif _powerup_type == _pieces[4]:
-        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
+    elif _game_state.random_powerup == _list_of_powerups[1]:
+        print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _game_state.random_powerup))
+        _game_state.random_powerup = ""
 
     # Powerup type: |
-    elif _powerup_type == _pieces[5]:
-        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
+    elif _game_state.random_powerup == _list_of_powerups[2]:
+        print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _game_state.random_powerup))
+        _game_state.random_powerup = ""
     
     # Powerup type: -
-    elif _powerup_type == _pieces[6]:
-        print("alpha:{} num:{} powerup:{}".format(_coords, _powerup_type))
+    # returned yellow /
+    elif _game_state.random_powerup == _list_of_powerups[3]:
+        print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _game_state.random_powerup))
+        _game_state.random_powerup = ""
 
-def piece_is_powerup(_coords, _pieces, _grid):
-    if _grid[_coords[0]][_coords[1]] != _pieces[0] and _grid[_coords[0]][_coords[1]] != _pieces[1] and _grid[_coords[0]][_coords[1]] == _pieces[2]:
-        return True
-    else:
-        return False
+def piece_is_powerup(_coords, _pieces, _grid, _list_of_powerups):
+    for i in range(len(_list_of_powerups)):
+        print(i)
+        print(_grid[_coords[0]][_coords[1]] in _list_of_powerups)
+        #if _grid[_coords[0]][_coords[1]] == _pieces[i]:
+        if _grid[_coords[0]][_coords[1]] in _list_of_powerups:
+
+            return True
+
+        else:
+            continue
+
+    return False
+
 
 def get_input(_prompt):
     print(_prompt)
@@ -248,15 +272,13 @@ def get_input(_prompt):
     location = location.split()
     return location
 
-def overlap_check(_coords, _game_state, _pieces, _grid, _current_player_turn):
-    print(_coords, "overlap coords")
+def overlap_check(_coords, _game_state, _pieces, _grid):
 
     if _grid[_coords[0]][_coords[1]] == _pieces[1] or _grid[_coords[0]][_coords[1]] == _pieces[1]:
         _game_state.status_message = "Place your piece on a dot or powerup."
         return False
     else:
         return True
-
 
 def valid_input(_coords, _alphabet, _n, _game_state):
     l_len = len(_coords)
@@ -291,10 +313,3 @@ def valid_input(_coords, _alphabet, _n, _game_state):
     else:
         _game_state.status_message = ""
         return True
-
-def check_for_overlap(_coords, _grid, _pieces):
-    #check for X's and O's overlapping each other
-    if _grid[_coords[0]][_coords[1]] == _pieces[1] or _grid[_coords[0]][_coords[1]] == _pieces[2]:
-        status_message = "Can't place an X or O ontop of on another."
-        return False, status_message
-    
