@@ -20,7 +20,7 @@ class GameState:
         self.pieces_placed_on_this_player_turn = 0
         self.turn_switch = False
         self.status_message = ""
-        self.pieces = set([" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END])
+        self.pieces = [" . ", " X ", " O ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END]
         self.grid = [[" . " for _ in range(self.n)] for _ in range(self.n)]
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         self.sub_set_of_replacedable_pieces = set([" . ", YELLOW + " / " + END, BLUE + " \\ " + END, PINK + " | " + END, CYAN + " - " + END])
@@ -104,16 +104,11 @@ def modify_grid(_coords, _piece, _grid, _game_state):
 
 def draw_check(_game_state):
     rset = {i for sub_l in _game_state.grid for i in sub_l}
-    print("rset val", rset)
-    print(_game_state.grid)
-    print("result", rset in _game_state.set_of_x_y)
-    print(_game_state.set_of_x_y)
     
     if rset == _game_state.set_of_x_y:
         draw(_game_state)
     else:
         return False
-
 
 def display_grid(grid_state, _n, _alphabet):
     print()
@@ -219,13 +214,11 @@ def display_status_text(message):
     status_color_wrap = "{}{}{}".format(YELLOW, message, END)
     print(status_color_wrap)
 
-def powerup_activation_logic(_coords, _this_powerup, _list_of_powerups, _n):
+def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
+    pieces = list(_game_state.pieces)
 
-    # Powerup type: /
-    print("powerup type val:", _this_powerup)
-    print("boom!")
     #wrong
-    if _this_powerup == _list_of_powerups[0]:
+    if _this_powerup == pieces[3]:
         print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _this_powerup))
 
         max_effect = _n-1
@@ -233,7 +226,6 @@ def powerup_activation_logic(_coords, _this_powerup, _list_of_powerups, _n):
         effect_size = max_effect - _coords[0]
 
         for _ in range(effect_size):
-            print("test")
             pass
 
         #foreach step away from [0],[n], max_effect -1
@@ -241,20 +233,21 @@ def powerup_activation_logic(_coords, _this_powerup, _list_of_powerups, _n):
         #
 
     # Powerup type: \
-    elif _this_powerup == _list_of_powerups[1]:
+    elif _this_powerup == pieces[4]:
         print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _this_powerup))
 
     # Powerup type: |
-    elif _this_powerup == _list_of_powerups[2]:
+    elif _this_powerup == pieces[5]:
         print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _this_powerup))
     
     # Powerup type: -
     # returned yellow /
-    elif _this_powerup == _list_of_powerups[3]:
+    elif _this_powerup == pieces[6]:
         print("alpha:{} num:{} powerup:{}".format(_coords[0], _coords[1], _this_powerup))
 
 def piece_is_powerup(_coords, _grid, _set_of_powerups):
-        if _grid[_coords[0]][_coords[1]] in _set_of_powerups:
+        coord = _grid[_coords[0]][_coords[1]]
+        if coord in (_set_of_powerups):
 
             return True
 
