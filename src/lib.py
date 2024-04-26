@@ -30,7 +30,6 @@ class GameState:
  
 
     def current_player_turn(self):
-
         if self.turn_switch:
             return " O "
         else:
@@ -40,7 +39,6 @@ class GameState:
         self.turn_switch = not self.turn_switch
         _game_state.pieces_placed_on_this_player_turn = 0 
 
-
 def nested_list_not_cointains_all_elements_of_set(_nested_list, _set):
     for i in _set:
         if not any(i in row for row in _nested_list):
@@ -49,12 +47,12 @@ def nested_list_not_cointains_all_elements_of_set(_nested_list, _set):
         return False
 
 def display_in_gameloop(_game_state):
-#display first screen
+#Display grid with hud and status text if exists.
     display_grid(_game_state.grid, _game_state.n, _game_state.alphabet)
     display_status_text(_game_state.status_message)
 
 def clean_input(_input_str, _alphabet):
-    #Inputs are valid.
+    #Inputs are valid at this point.
     #Convert string coords to int.
     alpha_index = _alphabet.index(_input_str[0])
     numeral_index = int (_input_str[1])
@@ -64,7 +62,6 @@ def clean_input(_input_str, _alphabet):
     return (alpha_index, numeral_index)
 
 def get_random_powerup_coords(_n):
-
     alpha_val = random.randint(0, _n-1)
     numeral_val =  random.randint(0, _n-1)
 
@@ -175,10 +172,8 @@ def vertical_check(_grid, _n, _current_player_turn, _alphabet):
         else: 
             return False
 
-
 def diagonal_down_check(_grid, _n, _current_pieces, _alphabet):
     dia_down_count = 0 
-
 
     for i in range(0, _n-1):
         if _grid[i][i] == _current_pieces:
@@ -189,7 +184,6 @@ def diagonal_down_check(_grid, _n, _current_pieces, _alphabet):
 
 def diagonal_up_check(_grid, _n, _current_pieces, _alphabet):
     dia_up_count = 0
-
     j = _n-1
 
     for i in range(0 , _n-1):
@@ -247,22 +241,21 @@ def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
 
 def piece_is_powerup(_coords, _grid, _set_of_powerups):
         coord = _grid[_coords[0]][_coords[1]]
-        if coord in (_set_of_powerups):
+        if coord in _set_of_powerups:
 
             return True
 
         else:
             return False
 
-
 def get_input(_prompt):
     print(_prompt)
     location = input("Enter coordiates: ")
     location = location.split()
+
     return location
 
 def overlap_check(_coords, _game_state: GameState, _grid):
-
     location = _grid[_coords[0]][_coords[1]]
 
     if location in _game_state.set_of_x_y:
