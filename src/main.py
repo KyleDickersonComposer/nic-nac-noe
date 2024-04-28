@@ -6,9 +6,9 @@ lib.clear_screen()
 
 while True:
     try:
-        n = int(input("Enter a whole number between 3 and 52 to determine grid size. "))
+        n = int(input("Enter a whole number between 4 and 52 to determine grid size. "))
         
-        if lib.validate_n(n, "The number must be between 3 and 52"):
+        if lib.validate_n(n, "The number must be between 4 and 52"):
             lib.clear_screen()
             break
     except:
@@ -40,6 +40,7 @@ while True:
         
         if check == True:
             game_state.grid = lib.modify_grid(player_input, game_state.current_player_turn(), game_state.grid, game_state)
+            lib.win_check(game_state)
             game_state.pieces_placed_on_this_player_turn += 1
 
             if lib.piece_is_powerup(player_input, last_grid_state, game_state.set_of_powerups) == True:
@@ -63,6 +64,5 @@ while True:
                             game_state.alternate_player_turn(game_state)
                             break
 
-    lib.display_in_gameloop(game_state)
     lib.draw_check(game_state)
-    lib.win_check(game_state.grid, game_state.n, game_state.current_player_turn(), game_state.alphabet)
+    lib.display_in_gameloop(game_state)

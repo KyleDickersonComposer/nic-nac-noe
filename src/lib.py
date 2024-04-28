@@ -16,8 +16,7 @@ class GameState:
         self.n = _n
         self.xs_placed = 0
         self.os_placed = 0
-        #self.pieces_to_place_for_each_player_turn = math.floor(math.log(self.n**2,3))
-        self.pieces_to_place_for_each_player_turn = 1
+        self.pieces_to_place_for_each_player_turn = math.floor(math.log(self.n**2,3))
         self.pieces_placed_on_this_player_turn = 0
         self.turn_switch = False
         self.status_message = ""
@@ -131,78 +130,78 @@ def draw(_game_state):
     display_status_text("Draw Game")
     exit()
 
-def win(_grid, _n, _alphabet, _current_player_turn):
+def win(_game_state):
     clear_screen()
-    display_grid(_grid, _n, _alphabet)
-    display_status_text("{}'s WIN!".format(_current_player_turn))
+    display_grid(_game_state.grid, _game_state.n, _game_state.alphabet)
+    display_status_text("{}'s WIN!".format(_game_state.current_player_turn()))
     exit(0)
 
-def horizontal_check(_grid, _n, _current_player_turn, _alphabet):
-    for i in range(_n):
-        count = 0 
+def horizontal_win_check(_game_state):
+    for i in range(_game_state.n):
+        count = 0
         
-        for j in range(_n):
-            if _grid[i][j] == _current_player_turn:
-                count = count + 1
+        for j in range(_game_state.n):
+            if _game_state.grid[i][j] == _game_state.current_player_turn():
+                print("+1")
+                count += 1
+                if count == _game_state.n:
+                    win(_game_state)
 
-        if count == _n:
-            win(_grid, _n, _alphabet, _current_player_turn)
-            return True
-
-        elif count != _n and i != _n:
+        if i != _game_state.n-1:
+            print("hori. count", count)
             continue
 
         else: 
             return False
 
-def vertical_check(_grid, _n, _current_player_turn, _alphabet):
-    for i in range(_n):
-        count = 0 
+def vertical_win_check(_game_state):
+    for i in range(_game_state.n):
+        count = 0
         
-        for j in range(_n):
-            if _grid[j][i] == _current_player_turn:
-                count = count + 1
+        for j in range(_game_state.n):
+            if _game_state.grid[j][i] == _game_state.current_player_turn():
+                count += 1
 
-        if count == _n:
-            win(_grid, _n, _alphabet, _current_player_turn)
-            return True
+                if count == _game_state.n:
+                    win(_game_state)
+                    print("calling win on col: {}".format(i))
 
-        elif count != _n and i != _n:
+        if i != _game_state.n-1:
             continue
 
         else: 
             return False
 
-def diagonal_down_check(_grid, _n, _current_pieces, _alphabet):
+def diagonal_down_win_check(_game_state):
     dia_down_count = 0 
 
-    for i in range(0, _n-1):
-        if _grid[i][i] == _current_pieces:
+    for i in range(0, _game_state.n-1):
+        if _game_state.grid[i][i] == _game_state.current_player_turn():
             dia_down_count += 1
 
-    if dia_down_count == _n - 1 and _grid[_n-1][_n-1] == _current_pieces:
-        win(_grid, _n, _alphabet, _current_pieces)
+    if dia_down_count == _game_state.n - 1 and _game_state.grid[_game_state.n-1][_game_state.n-1] == _game_state.current_player_turn():
+        win(_game_state)
 
-def diagonal_up_check(_grid, _n, _current_pieces, _alphabet):
+def diagonal_up_win_check(_game_state):
     dia_up_count = 0
-    j = _n-1
+    j = _game_state.n-1
 
-    for i in range(0 , _n-1):
-        if _grid[i][j] == _current_pieces:
+    for i in range(0 , _game_state.n-1):
+        if _game_state.grid[i][j] == _game_state.current_player_turn():
             dia_up_count += 1
             j -= 1
 
-    if dia_up_count == _n - 1 and _grid[_n-1][0] == _current_pieces:
-        win(_grid, _n, _alphabet, _current_pieces)
+    if dia_up_count == _game_state.n-1 and _game_state.grid[_game_state.n-1][0] == _game_state.current_player_turn():
+        win(_game_state)
 
-def win_check(_grid, _n, _current_pieces, _alphabet):
-    horizontal_check(_grid, _n, _current_pieces, _alphabet)
+def win_check(_game_state):
+    horizontal_win_check(_game_state)
 
-    vertical_check(_grid, _n, _current_pieces, _alphabet)
+    vertical_win_check(_game_state)
 
-    diagonal_down_check(_grid, _n, _current_pieces, _alphabet)
+    diagonal_down_win_check(_game_state)
 
-    diagonal_up_check(_grid, _n, _current_pieces, _alphabet)
+    diagonal_up_win_check(_game_state)
 
 def display_status_text(message):
     status_color_wrap = "{}{}{}".format(YELLOW, message, END)
@@ -341,7 +340,7 @@ def valid_input(_coords, _alphabet, _n, _game_state):
         return True
 
 def validate_n(_n_val, _status_message):
-    if 3 <= _n_val <= 52:
+    if 4 <= _n_val <= 52:
 
         return True
 
