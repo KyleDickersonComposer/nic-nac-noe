@@ -6,14 +6,18 @@ lib.clear_screen()
 
 while True:
     try:
-        n = int(input("Enter desired board size: "))
+        n = int(input("Enter a whole number between 3 and 52 to determine grid size. "))
+        
+        if lib.validate_n(n, "The number must be between 3 and 52"):
+            lib.clear_screen()
+            break
     except:
+        lib.clear_screen()
         continue
 
-    if 3 <= n <= 53:
-        break
-
 game_state = lib.GameState(n)
+
+lib.display_in_gameloop(game_state)
 
 while True:
     #If debug mode is true print debug statements will be hidden.
@@ -25,9 +29,7 @@ while True:
 
     hud_text = "{}'s turn. Xs placed: {}. Os placed: {}. \n".format(game_state.current_player_turn(), game_state.xs_placed, game_state.os_placed)
 
-    lib.display_in_gameloop(game_state)
-
-    prompt_result = lib.get_input(hud_text)
+    prompt_result = lib.get_input_coords(hud_text)
 
     is_valid = lib.valid_input(prompt_result, game_state.alphabet, game_state.n, game_state)
 
@@ -42,7 +44,7 @@ while True:
 
             if lib.piece_is_powerup(player_input, last_grid_state, game_state.set_of_powerups) == True:
                 powerup_this_turn = lib.get_random_powerup(game_state.set_of_powerups)
-                lib.powerup_activation_logic(player_input, last_grid_state[player_input[0]][player_input[1]], game_state.set_of_powerups, game_state)
+                lib.powerup_activation_logic(player_input, last_grid_state[player_input[0]][player_input[1]], game_state.n, game_state)
 
             if game_state.pieces_placed_on_this_player_turn == game_state.pieces_to_place_for_each_player_turn:
                 while True:
@@ -61,6 +63,6 @@ while True:
                             game_state.alternate_player_turn(game_state)
                             break
 
+    lib.display_in_gameloop(game_state)
     lib.draw_check(game_state)
-
     lib.win_check(game_state.grid, game_state.n, game_state.current_player_turn(), game_state.alphabet)
