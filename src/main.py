@@ -1,6 +1,6 @@
 import lib 
 
-debug_mode = True
+debug_mode = False
 
 lib.clear_screen()
 
@@ -24,6 +24,8 @@ while True:
     if debug_mode == False:
         # ANSI code to clear the screen.
         lib.clear_screen()
+
+    lib.display_in_gameloop(game_state)
 
     last_grid_state = [row[:] for row in game_state.grid]
 
