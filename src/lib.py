@@ -142,13 +142,11 @@ def horizontal_win_check(_game_state):
         
         for j in range(_game_state.n):
             if _game_state.grid[i][j] == _game_state.current_player_turn():
-                print("+1")
                 count += 1
                 if count == _game_state.n:
                     win(_game_state)
 
         if i != _game_state.n-1:
-            print("hori. count", count)
             continue
 
         else: 
@@ -164,7 +162,6 @@ def vertical_win_check(_game_state):
 
                 if count == _game_state.n:
                     win(_game_state)
-                    print("calling win on col: {}".format(i))
 
         if i != _game_state.n-1:
             continue
@@ -214,7 +211,6 @@ def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
         numeral_coord = _coords[1]
 
         for _ in range(_n):
-            print("Find origin. A: {} N: {}".format(alpha_coord, numeral_coord))
             if alpha_coord == 0 or numeral_coord == _n-1:
                 break
             elif alpha_coord >= 0 or numeral_coord <= _n-1:
@@ -222,16 +218,12 @@ def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
                 numeral_coord += 1
 
         for _ in range(_n):
-            print(" Apply mod. A: {} N: {}".format(alpha_coord, numeral_coord))
             if alpha_coord == _n-1 or numeral_coord == 0:
-                print("checking if should replace corner case")
                 if _game_state.grid[alpha_coord][numeral_coord] != _game_state.current_player_turn():
                     _game_state.grid[alpha_coord][numeral_coord] = _game_state.pieces[0]
-                    print("replacing corner case, then break.")
                 break
             elif alpha_coord <= _n-2 or numeral_coord >= 1:
                 if _game_state.grid[alpha_coord][numeral_coord] != _game_state.current_player_turn():
-                    print("replaced: {}. at coords A:{} N:{}".format(_game_state.grid[alpha_coord][numeral_coord], alpha_coord, numeral_coord))
                     _game_state.grid[alpha_coord][numeral_coord] = _game_state.pieces[0]
                 alpha_coord += 1
                 numeral_coord -= 1
@@ -242,7 +234,6 @@ def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
         numeral_coord = _coords[1]
 
         for _ in range(_n):
-            print("Find origin. A: {} N: {}".format(alpha_coord, numeral_coord))
             if alpha_coord == 0 or numeral_coord == 0:
                 break
 
@@ -251,21 +242,13 @@ def powerup_activation_logic(_coords, _this_powerup, _n, _game_state):
                 numeral_coord -= 1
 
         for _ in range(_n):
-            print("Apply mod. A: {} N: {}".format(alpha_coord, numeral_coord))
             if alpha_coord == _n-1 or numeral_coord == _n-1:
-                print("checking if should replace corner case")
-                print("coords", _game_state.grid[alpha_coord][numeral_coord])
-                print("current pieces", _game_state.current_player_turn())
                 if _game_state.grid[alpha_coord][numeral_coord] != _game_state.current_player_turn():
                     _game_state.grid[alpha_coord][numeral_coord] = _game_state.pieces[0]
-                    print("replacing corner case, then break.")
                 break
 
             elif alpha_coord <= _n-2 or numeral_coord <= _n-2:
                 if _game_state.grid[alpha_coord][numeral_coord] != _game_state.current_player_turn():
-                    print("coords", _game_state.grid[alpha_coord][numeral_coord])
-                    print("current pieces", _game_state.current_player_turn())
-                    print("replaced: {}. at coords A:{} N:{}".format(_game_state.grid[alpha_coord][numeral_coord], alpha_coord, numeral_coord))
                     _game_state.grid[alpha_coord][numeral_coord] = _game_state.pieces[0]
                 alpha_coord += 1
                 numeral_coord += 1
